@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = appInfo => {
   const config = exports = {}
 
@@ -11,5 +13,8 @@ module.exports = appInfo => {
   config.mongoose = {
     url: 'mongodb://127.0.0.1/lavender'
   }
+  // file store dir
+  config.fileDir = path.join(appInfo.root, 'cloud')
+
   return config
 }

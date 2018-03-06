@@ -15,8 +15,7 @@ module.exports = app => {
       maxlength: 20,
       required: true,
       trim: true,
-      index: true,
-      unique: true
+      index: true
     },
     password: {
       // 密码使用hash摘要
@@ -54,7 +53,8 @@ module.exports = app => {
     group: {
       type: Schema.Types.ObjectId,
       required: true,
-      index: true
+      index: true,
+      ref: 'groups'
     }
   })
 
@@ -63,8 +63,21 @@ module.exports = app => {
   }
 
   UserSchema.statics.getUserByName = async function (name) {
-    let result = await this.findOne({name}).exec()
+    let result = await this.findOne({name}).populate('group').exec()
     return result
+  }
+
+  UserSchema.statics.getUserById = async function (id) {
+    const user = await this.findById(id).populate('group').exec()
+    return user
+  }
+
+  UserSchema.methods.getUserPermissions = function () {
+    const userPermssions = this.toObject().permissions
+    const groupPermissions = this.toObject().group.permissions
+    const userPermssionsArray = Object.keys(userPermssions).filter(e => userPermssions[e])
+    const groupPermissionssArray = Object.keys(groupPermissions).filter(e => groupPermissions[e])
+    return new Set([...userPermssionsArray, ...groupPermissionssArray])
   }
 
   return mongoose.model('users', UserSchema)
