@@ -15,6 +15,7 @@ module.exports = app => {
       maxlength: 20,
       required: true,
       trim: true,
+      unique: true,
       index: true
     },
     password: {

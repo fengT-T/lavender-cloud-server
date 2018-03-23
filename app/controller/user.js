@@ -8,7 +8,7 @@ class UserController extends Controller {
     const user = await User.getUserByName(name)
 
     if (!user) {
-      this.ctx.body = {error: 401, msg: '用户不存在'}
+      this.ctx.body = {error: 401, msg: '用户不存在', filed: 'name'}
       this.ctx.status = 401
       return
     }
@@ -18,9 +18,16 @@ class UserController extends Controller {
       this.ctx.session = {id: user.id, groupId: group.id}
       this.ctx.body = {id, name, group, headImgUrl, permissions}
     } else {
-      this.ctx.body = {error: 401, msg: '密码错误'}
+      this.ctx.body = {error: 401, msg: '密码错误', filed: 'password'}
       this.ctx.status = 401
     }
+  }
+
+  async info () {
+    const {User} = this.ctx.model
+    const user = await User.getUserById(this.ctx.session.id)
+    const {id, name, group, headImgUrl, permissions} = user
+    this.ctx.body = {id, name, group, headImgUrl, permissions}
   }
 
   async register () {

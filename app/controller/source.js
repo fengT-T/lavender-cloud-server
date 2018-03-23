@@ -1,10 +1,8 @@
 const Controller = require('egg').Controller
-var crypto = require('crypto')
 const path = require('path')
 const fs = require('fs')
 const awaitWriteStream = require('await-stream-ready').write
 const sendToWormhole = require('stream-wormhole')
-const mime = require('mime-types')
 
 class SourceController extends Controller {
   async getFileList () {
@@ -32,16 +30,16 @@ class SourceController extends Controller {
     const {getFileStatus} = this.ctx.helper
 
     try {
-      this.ctx.type = mime.lookup(filePath)
-      const mtime = (await getFileStatus(filePath)).mtime
+      const {mtime, mime} = (await getFileStatus(filePath))
 
       if (mtime.getTime() - Date.parse(this.ctx.header['if-modified-since']) < 1000) {
         this.ctx.status = 304
       } else {
         this.ctx.body = fs.createReadStream(filePath)
+        this.ctx.type = mime
+        this.ctx.set('Cache-Control', 'no-cache')
+        this.ctx.lastModified = mtime
       }
-      this.ctx.set('Cache-Control', 'no-cache')
-      this.ctx.lastModified = mtime
     } catch (e) {
       this.ctx.status = 400
     }

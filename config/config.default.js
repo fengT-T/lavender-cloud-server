@@ -13,6 +13,11 @@ module.exports = appInfo => {
   config.mongoose = {
     url: 'mongodb://127.0.0.1/lavender'
   }
+
+  config.multipart = {
+    whitelist: (filename) => true,
+    fileSize: '1gb'
+  }
   // file store dir
   config.fileDir = path.join(appInfo.root, 'cloud')
 
